@@ -11,6 +11,12 @@
 
 import sys
 
+# Push
+PUSH = 0b01000101
+
+# Pop
+POP = 0b01000110
+
 # Halt
 HLT = 0b00000001
 
@@ -32,7 +38,7 @@ class CPU:
         self.ram = [0] * 256
         self.reg[7] = 0xF4
         self.pc = 0
-        self.halted = False
+        self.active = True
 
     def ram_read(self, address):
         return self.ram[address]
@@ -96,23 +102,24 @@ class CPU:
 
     def run(self):
         """Run the CPU."""
-        # The default state is off (halted)
-        while not self.halted:
-            instruction_to_execute = self.ram_read(self.pc) #Loop issue starts here
+        # The default state is on (active)
+        while  self.active:
+            instruction = self.ram[self.pc]
             operand_a = self.ram_read(self.pc + 1)
             operand_b = self.ram_read(self.pc + 2)
-            self.execute_instruction(instruction_to_execute, operand_a, operand_b)
 
-    def execute_instruction(self, instruction, operand_a, operand_b):
-        if instruction == HLT:
-            # Halting goes here, Exits Simulator 
-            self.halted = True
-            self.pc += 1
-        elif instruction == LDI:
-            # LDI sets value of register to an interger 
-            self.reg[operand_a] = operand_b
-            self.pc += 3
-        elif instruction == PRN:
-            print(self.reg[operand_a])
-            self.pc += 2 
-        
+    
+            if instruction == HLT:
+                # Halting goes here, Exits Simulator 
+                self.active = False
+                self.pc += 1
+            elif instruction == LDI:
+                # LDI sets value of register to an interger 
+                self.reg[operand_a] = operand_b
+                self.pc += 3
+            elif instruction == PRN:
+                print(operand_a)
+                self.pc += 2 
+            elif instruction == MUL:
+                register = self.reg[operand_a] + self.reg[operand_b]
+                print(register)
